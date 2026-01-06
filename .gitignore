@@ -1,0 +1,258 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related
+.vscode/
+*.code-workspace
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/app/build/
+/android/app/.cxx/
+
+# Android native build outputs
+android/.gradle/
+android/app/build/
+android/build/
+android/.cxx/
+
+# iOS related
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Podfile
+ios/Podfile.lock
+ios/Pods/
+ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS related
+macos/Flutter/Flutter.framework
+macos/Flutter/Generated.xcconfig
+macos/Flutter/ephemeral/
+macos/Podfile
+macos/Podfile.lock
+macos/Pods/
+macos/Runner/GeneratedPluginRegistrant.*
+
+# Linux related
+linux/CMakeCache.txt
+linux/CMakeFiles/
+linux/Makefile
+linux/cmake_install.cmake
+linux/flutter/
+linux/install_manifest.txt
+
+# Windows related
+windows/CMakeCache.txt
+windows/CMakeFiles/
+windows/Makefile
+windows/cmake_install.cmake
+windows/flutter/
+windows/install_manifest.txt
+windows/runner/Debug/
+windows/runner/Release/
+windows/runner/Generated/
+
+# Web related
+web/
+
+# Firebase related
+.firebase/
+
+# Environment variables
+.env
+.env.*
+
+# Local development
+*.local
+*.development
+
+# IDE specific
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.user
+
+# Test related
+test/.test_coverage.dart
+coverage/
+
+# Build outputs
+build/
+dist/
+out/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+logs/
+*.log
+
+# Database files (if using SQLite or similar)
+*.db
+*.sqlite
+*.sqlite3
+
+# Certificate files (security)
+*.pem
+*.crt
+*.key
+*.p12
+*.pfx
+
+# API keys and secrets (should never be committed)
+*api_key*
+*secret*
+*password*
+*token*
+
+# AHP Dashboard specific - local data storage
+*.hive
+*.hive.lock
+
+# Important: These native files SHOULD be committed
+# - android/app/src/main/res/ (app icons and resources)
+# - windows/runner/resources/ (app icons)
+# - windows/runner/*.cpp, *.h (native Windows code)
+# - lib/statics/ (app assets like logo.png)
+# - Any custom assets defined in pubspec.yaml
+
+# Flutter build artifacts
+*.apk
+*.aab
+*.ipa
+*.zip
+*.app
+
+# Symbol files
+*.dSYM/
+
+# Crash logs
+*.crash
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation (generated)
+docs/
+
+# Node modules (if any)
+node_modules/
+
+# Python cache (if any)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE - JetBrains
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/shelf/
+
+# IDE - VSCode
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Sensitive files
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.keystore
+*.jks
+*.store
+
+# Flutter version lock
+.flutter-version
+
+# FVM (Flutter Version Management)
+.fvm/
+
+# Træ (if used)
+.trae/
+
+# Custom scripts
+fix_imports.bat
+*.bat
+*.sh
+
+# Analysis options (if custom)
+analysis_options.yaml
+
+# Pubspec lock (optional - some projects commit this, some don't)
+# pubspec.lock
+
+# Project specific notes
+项目功能说明.md
