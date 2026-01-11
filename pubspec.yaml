@@ -10,80 +10,16 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  
-  # State Management
-  flutter_riverpod: ^2.3.0
-  riverpod_annotation: ^2.1.0
-  
-  # Data Serialization
-  # freezed: ^2.5.2
-  # freezed_annotation: ^2.5.0
-  # json_annotation: ^4.9.0
-  
-  # Permission Management
-  permission_handler: ^12.0.1
-  
-  # Location
-  geolocator: ^9.0.0
-  
-  # Bluetooth
-  flutter_blue_plus: ^1.17.2
-  
-  # Local Storage
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-  
-  # Map
-  # amap_map_fluttify: ^2.0.2
-  
-  # Logging
-  # sentry_flutter: ^7.8.0
-  logging: ^1.1.1
-  
-  # Media Control
-  audio_session: ^0.1.16
-  just_audio: ^0.9.34
-  
-  # Secure Storage
-  flutter_secure_storage: ^8.0.0
-  
-  # Wake Lock (Prevent screen from sleeping)
-  wakelock_plus: ^1.1.0
-  
-  # App Settings
-  app_settings: ^5.0.0
-  
-  # Notification Listener
-  # notification_listener_service: ^0.3.4
-  
-  # Media Control
-  # media_kit: ^1.1.13
-  # media_kit_video: ^1.2.5
-  # media_kit_libs_android_video: ^1.3.2
+  flutter_riverpod: ^2.4.9
+  shared_preferences: ^2.2.2
+  flutter_animate: ^4.2.0+1
+  permission_handler: ^12.0.0
+  location: ^5.0.0
+  flutter_blue_plus: ^1.30.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_lints: ^2.0.0
-  
-  # Code Generation
-  build_runner: ^2.4.13
-  # riverpod_generator: ^2.5.2
-  # freezed_generator: ^2.5.1
-  # json_serializable: ^6.8.0
-  hive_generator: ^2.0.1
-  
-  # Integration Testing
-  integration_test:
-    sdk: flutter
-  
-  # App Icon Generation
-  flutter_launcher_icons: ^0.14.4
+  riverpod_lint: ^2.3.7
 
 flutter:
   uses-material-design: true
-
-flutter_launcher_icons:
-  image_path: "lib/statics/logo.png"
-  android: true
-  ios: true
