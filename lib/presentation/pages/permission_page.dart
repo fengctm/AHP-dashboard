@@ -6,11 +6,8 @@ import '../widgets/molecules/permission_request_card.dart';
 import '../widgets/atoms/adaptive_card.dart';
 import '../widgets/atoms/custom_button.dart';
 import '../../../core/constants/permission_constants.dart';
-import '../../../core/theme/app_colors.dart';
 import 'dashboard_page.dart';
 
-/// 权限请求页面
-/// 应用启动时显示，要求用户授予必要权限
 class PermissionPage extends ConsumerStatefulWidget {
   const PermissionPage({Key? key}) : super(key: key);
 
@@ -25,7 +22,6 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
   @override
   void initState() {
     super.initState();
-    // 初始化时检查权限
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkInitialPermissions();
     });
@@ -55,7 +51,6 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
           _statusMessage = PermissionConstants.readyToProceed;
         });
         
-        // 延迟后跳转
         await Future.delayed(const Duration(milliseconds: 1500));
         _proceedToDashboard();
       } else {
@@ -102,22 +97,23 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
   }
 
   void _showWarning(int missingCount) {
+    final colorScheme = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.warning_amber, color: Colors.white),
+            Icon(Icons.warning_amber, color: colorScheme.onErrorContainer),
             const SizedBox(width: 12),
             Expanded(
               child: Text('还有 $missingCount 个权限未授予，请手动授予权限'),
             ),
           ],
         ),
-        backgroundColor: Colors.orange,
+        backgroundColor: colorScheme.errorContainer,
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: '我知道了',
-          textColor: Colors.white,
+          textColor: colorScheme.onErrorContainer,
           onPressed: () {},
         ),
       ),
@@ -125,17 +121,18 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
   }
 
   void _showError() {
+    final colorScheme = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Row(
           children: [
-            Icon(Icons.error, color: Colors.white),
-            SizedBox(width: 12),
-            Text('权限请求出错，请重试'),
+            Icon(Icons.error, color: colorScheme.onErrorContainer),
+            const SizedBox(width: 12),
+            const Text('权限请求出错，请重试'),
           ],
         ),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
+        backgroundColor: colorScheme.errorContainer,
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -145,11 +142,9 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
     final result = await permissionNotifier.openSettings();
     
     if (result) {
-      // 等待用户返回并刷新
       await Future.delayed(const Duration(seconds: 1));
       await permissionNotifier.refresh();
       
-      // 检查是否所有权限都已授予
       if (await permissionNotifier.hasAllRequiredPermissions()) {
         _proceedToDashboard();
       }
@@ -160,6 +155,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
   Widget build(BuildContext context) {
     final permissionUtils = ref.watch(permissionUtilsProvider);
     final state = ref.watch(permissionProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: SafeArea(
@@ -168,20 +164,16 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 标题区域
-              _buildHeader(),
+              _buildHeader(colorScheme),
               const SizedBox(height: 24),
               
-              // 权限说明
-              _buildExplanation(),
+              _buildExplanation(colorScheme),
               const SizedBox(height: 20),
               
-              // 权限列表
               if (state.value != null) ...[
                 PermissionRequestList(
                   permissions: PermissionGroup.required,
                   onAllGranted: () {
-                    // 所有权限授予后自动跳转
                     Future.delayed(const Duration(milliseconds: 500), () {
                       if (mounted) {
                         _proceedToDashboard();
@@ -191,11 +183,9 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
                 ),
                 const SizedBox(height: 16),
                 
-                // 可选权限
                 _buildOptionalPermissions(),
                 const SizedBox(height: 16),
                 
-                // 权限总结
                 const PermissionSummaryCard(),
               ] else ...[
                 const Center(
@@ -214,13 +204,11 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
               
               const SizedBox(height: 24),
               
-              // 操作按钮
-              _buildActionButtons(permissionUtils),
+              _buildActionButtons(permissionUtils, colorScheme),
               
-              // 状态消息
               if (_statusMessage.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                _buildStatusMessage(),
+                _buildStatusMessage(colorScheme),
               ],
             ],
           ),
@@ -229,7 +217,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme colorScheme) {
     return Animate(
       effects: [
         FadeEffect(duration: 400.ms, delay: 100.ms),
@@ -243,16 +231,15 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.security,
-              size: 32,
-              color: AppColors.primary,
+          Card.filled(
+            color: colorScheme.primaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                Icons.security,
+                size: 32,
+                color: colorScheme.onPrimaryContainer,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -266,8 +253,8 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
           const SizedBox(height: 8),
           Text(
             PermissionConstants.permissionRequiredDescription,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -275,7 +262,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
     );
   }
 
-  Widget _buildExplanation() {
+  Widget _buildExplanation(ColorScheme colorScheme) {
     return AdaptiveCard(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Column(
@@ -283,7 +270,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.info_outline, size: 18, color: AppColors.info),
+              Icon(Icons.info_outline, size: 18, color: colorScheme.primary),
               const SizedBox(width: 8),
               Text(
                 PermissionConstants.whyNeedPermissions,
@@ -311,7 +298,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
       children: [
         const Text(
           '可选权限（推荐）',
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -323,10 +310,9 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
     );
   }
 
-  Widget _buildActionButtons(PermissionUtils permissionUtils) {
+  Widget _buildActionButtons(PermissionUtils permissionUtils, ColorScheme colorScheme) {
     return Column(
       children: [
-        // 主要操作按钮
         Row(
           children: [
             Expanded(
@@ -341,7 +327,6 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
         ),
         const SizedBox(height: 12),
         
-        // 辅助按钮
         Row(
           children: [
             Expanded(
@@ -357,7 +342,6 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
           ],
         ),
         
-        // 跳过可选权限（如果已满足必要权限）
         FutureBuilder<bool>(
           future: permissionUtils.hasAllRequiredPermissions,
           builder: (context, snapshot) {
@@ -386,7 +370,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
     );
   }
 
-  Widget _buildStatusMessage() {
+  Widget _buildStatusMessage(ColorScheme colorScheme) {
     final hasError = _statusMessage.contains('失败') || _statusMessage.contains('错误');
     final isSuccess = _statusMessage.contains('成功') || _statusMessage.contains('就绪');
 
@@ -394,45 +378,41 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
       effects: [
         FadeEffect(duration: 300.ms),
       ],
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: hasError
-              ? Colors.red.withValues(alpha: 0.1)
-              : isSuccess
-                  ? Colors.green.withValues(alpha: 0.1)
-                  : Colors.orange.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: hasError
-                ? Colors.red
-                : isSuccess
-                    ? Colors.green
-                    : Colors.orange,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              hasError ? Icons.error : (isSuccess ? Icons.check_circle : Icons.info),
-              color: hasError ? Colors.red : (isSuccess ? Colors.green : Colors.orange),
-              size: 18,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                _statusMessage,
-                style: TextStyle(
-                  color: hasError
-                      ? Colors.red
-                      : isSuccess
-                          ? Colors.green
-                          : Colors.orange,
-                  fontWeight: FontWeight.w600,
+      child: Card.filled(
+        color: hasError
+            ? colorScheme.errorContainer
+            : isSuccess
+                ? colorScheme.primaryContainer
+                : colorScheme.tertiaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(
+                hasError ? Icons.error : (isSuccess ? Icons.check_circle : Icons.info),
+                color: hasError
+                    ? colorScheme.error
+                    : isSuccess
+                        ? colorScheme.primary
+                        : colorScheme.tertiary,
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _statusMessage,
+                  style: TextStyle(
+                    color: hasError
+                        ? colorScheme.onErrorContainer
+                        : isSuccess
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onTertiaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

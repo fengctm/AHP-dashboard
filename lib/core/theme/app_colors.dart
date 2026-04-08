@@ -1,85 +1,103 @@
 import 'package:flutter/material.dart';
 
-/// 应用基础配色方案
-/// 遵循科技、扁平化、速度、万物互联的设计理念
+/// Material Design 3 配色方案
+/// 遵循 Google Material Design 3 设计规范
 class AppColors {
-  // 主色调 - 科技蓝
-  static const Color primary = Color(0xFF2196F3);
-  static const Color primaryLight = Color(0xFF64B5F6);
-  static const Color primaryDark = Color(0xFF1976D2);
+  // 主色调 - Material 3 蓝色（动态色彩种子）
+  static const Color primary = Color(0xFF2563EB);
+  static const Color onPrimary = Color(0xFFFFFFFF);
+  static const Color primaryContainer = Color(0xFFDBE2FE);
+  static const Color onPrimaryContainer = Color(0xFF0E1F6B);
 
-  // 次要色 - 活力橙
-  static const Color secondary = Color(0xFFFF9800);
-  static const Color secondaryLight = Color(0xFFFFB74D);
-  static const Color secondaryDark = Color(0xFFF57C00);
+  // 次要色
+  static const Color secondary = Color(0xFF5C6BC0);
+  static const Color onSecondary = Color(0xFFFFFFFF);
+  static const Color secondaryContainer = Color(0xFFE0E7FF);
+  static const Color onSecondaryContainer = Color(0xFF172B4D);
 
-  // 强调色 - 速度绿
-  static const Color accent = Color(0xFF4CAF50);
-  static const Color accentLight = Color(0xFF81C784);
-  static const Color accentDark = Color(0xFF388E3C);
+  // 第三色
+  static const Color tertiary = Color(0xFF7C4DFF);
+  static const Color onTertiary = Color(0xFFFFFFFF);
+  static const Color tertiaryContainer = Color(0xFFEDE7F6);
+  static const Color onTertiaryContainer = Color(0xFF311B92);
 
-  // 语义化状态颜色
-  static const Color success = Color(0xFF4CAF50);
-  static const Color warning = Color(0xFFFFC107);
-  static const Color error = Color(0xFFF44336);
-  static const Color info = Color(0xFF2196F3);
+  // 错误色
+  static const Color error = Color(0xFFBA1A1A);
+  static const Color onError = Color(0xFFFFFFFF);
+  static const Color errorContainer = Color(0xFFFFDAD6);
+  static const Color onErrorContainer = Color(0xFF410002);
 
-  // 霓虹色（深色主题专用）
-  static const Color cyanNeon = Color(0xFF00E5FF);
-  static const Color successNeon = Color(0xFF00FF88);
-  static const Color warningNeon = Color(0xFFFFD600);
-  static const Color errorNeon = Color(0xFFFF1744);
-  static const Color purpleNeon = Color(0xFFB388FF);
+  // 表面色（浅色主题）
+  static const Color surfaceLight = Color(0xFFFEFBFF);
+  static const Color onSurfaceLight = Color(0xFF1A1C1E);
+  static const Color surfaceVariantLight = Color(0xFFE7E0EC);
+  static const Color onSurfaceVariantLight = Color(0xFF49454F);
+  static const Color surfaceContainerLowestLight = Color(0xFFFFFFFF);
+  static const Color surfaceContainerLowLight = Color(0xFFF7F2F9);
+  static const Color surfaceContainerLight = Color(0xFFF3EDF7);
+  static const Color surfaceContainerHighLight = Color(0xFFE9E4EA);
+  static const Color surfaceContainerHighestLight = Color(0xFFE0D9E1);
 
-  // 主题表面颜色
-  static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceDark = Color(0xFF1E1E1E);
-  static const Color backgroundLight = Color(0xFFF5F5F5);
-  static const Color backgroundDark = Color(0xFF121212);
+  // 表面色（深色主题）
+  static const Color surfaceDark = Color(0xFF1A1C1E);
+  static const Color onSurfaceDark = Color(0xFFE3E2E6);
+  static const Color surfaceVariantDark = Color(0xFF49454F);
+  static const Color onSurfaceVariantDark = Color(0xFFCAC4D0);
+  static const Color surfaceContainerLowestDark = Color(0xFF0F0D13);
+  static const Color surfaceContainerLowDark = Color(0xFF1D1B20);
+  static const Color surfaceContainerDark = Color(0xFF211F26);
+  static const Color surfaceContainerHighDark = Color(0xFF2B2930);
+  static const Color surfaceContainerHighestDark = Color(0xFF36343B);
 
-  // 文本颜色
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
+  // 背景色
+  static const Color backgroundLight = Color(0xFFFEFBFF);
+  static const Color onBackgroundLight = Color(0xFF1A1C1E);
+  static const Color backgroundDark = Color(0xFF1A1C1E);
+  static const Color onBackgroundDark = Color(0xFFE3E2E6);
 
-  // 额外颜色
-  static const Color primaryBlue = Color(0xFF2196F3);
-  static const Color purple = Color(0xFF9C27B0);
+  // 轮廓色
+  static const Color outlineLight = Color(0xFF79747E);
+  static const Color outlineDark = Color(0xFF938F99);
+  static const Color outlineVariantLight = Color(0xFFCAC4D0);
+  static const Color outlineVariantDark = Color(0xFF49454F);
 
-  // 数据可视化专用颜色
-  static const Color speed = Color(0xFF00BCD4);      // 速度 - 青色
-  static const Color power = Color(0xFFFF9800);      // 功率 - 橙色
-  static const Color battery = Color(0xFF4CAF50);    // 电量 - 绿色
-  static const Color temperature = Color(0xFFF44336); // 温度 - 红色
+  // 阴影色
+  static const Color shadowLight = Color(0xFF000000);
+  static const Color shadowDark = Color(0xFF000000);
+
+  // 反色（用于深色/浅色主题切换）
+  static const Color inverseSurfaceLight = Color(0xFF2F3033);
+  static const Color inverseOnSurfaceLight = Color(0xFFF4EFF4);
+  static const Color inversePrimaryLight = Color(0xFFB3C6FF);
+  static const Color inverseSurfaceDark = Color(0xFFE3E2E6);
+  static const Color inverseOnSurfaceDark = Color(0xFF1A1C1E);
+  static const Color inversePrimaryDark = Color(0xFF2563EB);
+
+  // 数据可视化专用颜色（Material 3 风格）
+  static const Color speed = Color(0xFF0B7285);
+  static const Color power = Color(0xFFE67700);
+  static const Color battery = Color(0xFF2B8A3E);
+  static const Color temperature = Color(0xFFC92A2A);
 
   // 连接状态颜色
-  static const Color connected = Color(0xFF4CAF50);
-  static const Color connecting = Color(0xFFFFC107);
-  static const Color disconnected = Color(0xFF9E9E9E);
-  static const Color errorState = Color(0xFFF44336);
+  static const Color connected = Color(0xFF2B8A3E);
+  static const Color connecting = Color(0xFFE67700);
+  static const Color disconnected = Color(0xFF868E96);
+  static const Color errorState = Color(0xFFC92A2A);
 
-  // 中性色
+  // 通用颜色
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
-  static const Color grey50 = Color(0xFFFAFAFA);
-  static const Color grey100 = Color(0xFFF5F5F5);
-  static const Color grey200 = Color(0xFFEEEEEE);
-  static const Color grey300 = Color(0xFFE0E0E0);
-  static const Color grey400 = Color(0xFFBDBDBD);
-  static const Color grey500 = Color(0xFF9E9E9E);
-  static const Color grey600 = Color(0xFF757575);
-  static const Color grey700 = Color(0xFF616161);
-  static const Color grey800 = Color(0xFF424242);
-  static const Color grey900 = Color(0xFF212121);
+  static const Color transparent = Color(0x00000000);
 }
 
-/// 语义化颜色系统
-/// 用于表达特定含义的颜色
+/// Material Design 3 语义化颜色系统
 class SemanticColors {
   // 状态颜色
-  static const Color success = AppColors.success;
-  static const Color warning = AppColors.warning;
-  static const Color error = AppColors.error;
-  static const Color info = AppColors.info;
+  static const Color success = Color(0xFF2B8A3E);
+  static const Color warning = Color(0xFFE67700);
+  static const Color error = Color(0xFFC92A2A);
+  static const Color info = Color(0xFF2563EB);
 
   // 数据可视化
   static const Color speed = AppColors.speed;
@@ -92,41 +110,96 @@ class SemanticColors {
   static const Color connecting = AppColors.connecting;
   static const Color disconnected = AppColors.disconnected;
   static const Color errorState = AppColors.errorState;
-
-  // 交通信号
-  static const Color red = Color(0xFFF44336);
-  static const Color yellow = Color(0xFFFFC107);
-  static const Color green = Color(0xFF4CAF50);
 }
 
-/// 浅色主题配色
+/// Material Design 3 浅色主题配色
 class LightThemeColors {
-  static const Color background = Color(0xFFF5F5F5);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceVariant = Color(0xFFE3E3E3);
+  static const Color primary = AppColors.primary;
+  static const Color onPrimary = AppColors.onPrimary;
+  static const Color primaryContainer = AppColors.primaryContainer;
+  static const Color onPrimaryContainer = AppColors.onPrimaryContainer;
 
-  static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color onSecondary = Color(0xFFFFFFFF);
-  static const Color onSurface = Color(0xFF212121);
-  static const Color onBackground = Color(0xFF212121);
+  static const Color secondary = AppColors.secondary;
+  static const Color onSecondary = AppColors.onSecondary;
+  static const Color secondaryContainer = AppColors.secondaryContainer;
+  static const Color onSecondaryContainer = AppColors.onSecondaryContainer;
 
-  static const Color divider = Color(0xFFE0E0E0);
-  static const Color hint = Color(0xFF757575);
-  static const Color disabled = Color(0xFFBDBDBD);
+  static const Color tertiary = AppColors.tertiary;
+  static const Color onTertiary = AppColors.onTertiary;
+  static const Color tertiaryContainer = AppColors.tertiaryContainer;
+  static const Color onTertiaryContainer = AppColors.onTertiaryContainer;
+
+  static const Color error = AppColors.error;
+  static const Color onError = AppColors.onError;
+  static const Color errorContainer = AppColors.errorContainer;
+  static const Color onErrorContainer = AppColors.onErrorContainer;
+
+  static const Color surface = AppColors.surfaceLight;
+  static const Color onSurface = AppColors.onSurfaceLight;
+  static const Color surfaceVariant = AppColors.surfaceVariantLight;
+  static const Color onSurfaceVariant = AppColors.onSurfaceVariantLight;
+  static const Color surfaceContainerLowest = AppColors.surfaceContainerLowestLight;
+  static const Color surfaceContainerLow = AppColors.surfaceContainerLowLight;
+  static const Color surfaceContainer = AppColors.surfaceContainerLight;
+  static const Color surfaceContainerHigh = AppColors.surfaceContainerHighLight;
+  static const Color surfaceContainerHighest = AppColors.surfaceContainerHighestLight;
+
+  static const Color background = AppColors.backgroundLight;
+  static const Color onBackground = AppColors.onBackgroundLight;
+
+  static const Color outline = AppColors.outlineLight;
+  static const Color outlineVariant = AppColors.outlineVariantLight;
+
+  static const Color shadow = AppColors.shadowLight;
+  static const Color scrim = AppColors.black;
+
+  static const Color inverseSurface = AppColors.inverseSurfaceLight;
+  static const Color inverseOnSurface = AppColors.inverseOnSurfaceLight;
+  static const Color inversePrimary = AppColors.inversePrimaryLight;
 }
 
-/// 深色主题配色
+/// Material Design 3 深色主题配色
 class DarkThemeColors {
-  static const Color background = Color(0xFF121212);
-  static const Color surface = Color(0xFF1E1E1E);
-  static const Color surfaceVariant = Color(0xFF2C2C2C);
+  static const Color primary = Color(0xFFB3C6FF);
+  static const Color onPrimary = Color(0xFF0E1F6B);
+  static const Color primaryContainer = Color(0xFF2563EB);
+  static const Color onPrimaryContainer = Color(0xFFDBE2FE);
 
-  static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color onSecondary = Color(0xFFFFFFFF);
-  static const Color onSurface = Color(0xFFE0E0E0);
-  static const Color onBackground = Color(0xFFE0E0E0);
+  static const Color secondary = Color(0xFFC4C6FF);
+  static const Color onSecondary = Color(0xFF1E192B);
+  static const Color secondaryContainer = Color(0xFF332D41);
+  static const Color onSecondaryContainer = Color(0xFFE8DEF8);
 
-  static const Color divider = Color(0xFF333333);
-  static const Color hint = Color(0xFF9E9E9E);
-  static const Color disabled = Color(0xFF616161);
+  static const Color tertiary = Color(0xFFCEBCFF);
+  static const Color onTertiary = Color(0xFF381E72);
+  static const Color tertiaryContainer = Color(0xFF7C4DFF);
+  static const Color onTertiaryContainer = Color(0xFFEDE7F6);
+
+  static const Color error = Color(0xFFFFB4AB);
+  static const Color onError = Color(0xFF690005);
+  static const Color errorContainer = Color(0xFF93000A);
+  static const Color onErrorContainer = Color(0xFFFFDAD6);
+
+  static const Color surface = AppColors.surfaceDark;
+  static const Color onSurface = AppColors.onSurfaceDark;
+  static const Color surfaceVariant = AppColors.surfaceVariantDark;
+  static const Color onSurfaceVariant = AppColors.onSurfaceVariantDark;
+  static const Color surfaceContainerLowest = AppColors.surfaceContainerLowestDark;
+  static const Color surfaceContainerLow = AppColors.surfaceContainerLowDark;
+  static const Color surfaceContainer = AppColors.surfaceContainerDark;
+  static const Color surfaceContainerHigh = AppColors.surfaceContainerHighDark;
+  static const Color surfaceContainerHighest = AppColors.surfaceContainerHighestDark;
+
+  static const Color background = AppColors.backgroundDark;
+  static const Color onBackground = AppColors.onBackgroundDark;
+
+  static const Color outline = AppColors.outlineDark;
+  static const Color outlineVariant = AppColors.outlineVariantDark;
+
+  static const Color shadow = AppColors.shadowDark;
+  static const Color scrim = AppColors.black;
+
+  static const Color inverseSurface = AppColors.inverseSurfaceDark;
+  static const Color inverseOnSurface = AppColors.inverseOnSurfaceDark;
+  static const Color inversePrimary = AppColors.inversePrimaryDark;
 }

@@ -6,7 +6,8 @@ import '../../../application/dashboard/dashboard_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../atoms/adaptive_card.dart';
 
-/// 信息区域组件 - 可折叠的多模块信息展示
+/// 信息区域组件 - Material Design 3 版本
+/// 可折叠的多模块信息展示
 class InfoSectionWidget extends ConsumerWidget {
   const InfoSectionWidget({super.key});
 
@@ -18,80 +19,69 @@ class InfoSectionWidget extends ConsumerWidget {
     final isHorizontal = dashboardState.isHorizontal;
     final isExpanded = dashboardState.isInfoSectionExpanded;
 
-    return AdaptiveCard(
-      padding: EdgeInsets.zero,
-      color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-      elevation: isDark ? 8 : 4,
+    return Card(
+      elevation: 0,
+      clipBehavior: Clip.antiAlias,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // 折叠栏头
-          _buildHeader(context, ref, isDark, isExpanded, isHorizontal),
+          _buildHeader(context, ref, theme, isExpanded),
 
-          // 展开的内容 - 使用 Expanded 包装以适应父容器
+          // 展开的内容
           if (isExpanded)
-            Expanded(
+            Flexible(
+              fit: FlexFit.loose,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight,
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // 模块网格
-                          isHorizontal
-                              ? Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Row(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 模块网格
+                            isHorizontal
+                                ? Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
                                           child: _buildControllerCard(
-                                              context, dashboardState, isDark)),
-                                      const SizedBox(width: 8),
+                                              context, dashboardState)),
+                                      const SizedBox(width: 12),
                                       Expanded(
                                           child: _buildBmsCard(
-                                              context, dashboardState, isDark)),
-                                      const SizedBox(width: 8),
+                                              context, dashboardState)),
+                                      const SizedBox(width: 12),
                                       Expanded(
                                           child: _buildTripCard(
-                                              context, dashboardState, isDark)),
+                                              context, dashboardState)),
                                     ],
-                                  ),
-                                )
-                              : Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Column(
+                                  )
+                                : Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       _buildControllerCard(
-                                          context, dashboardState, isDark),
-                                      const SizedBox(height: 8),
-                                      _buildBmsCard(
-                                          context, dashboardState, isDark),
-                                      const SizedBox(height: 8),
-                                      _buildTripCard(
-                                          context, dashboardState, isDark),
+                                          context, dashboardState),
+                                      const SizedBox(height: 12),
+                                      _buildBmsCard(context, dashboardState),
+                                      const SizedBox(height: 12),
+                                      _buildTripCard(context, dashboardState),
                                     ],
                                   ),
-                                ),
 
-                          const SizedBox(height: 8),
+                            const SizedBox(height: 12),
 
-                          // 拓展模块
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: _buildExtensionsCard(
-                                context, dashboardState, isDark),
-                          ),
-                        ],
+                            // 拓展模块
+                            _buildExtensionsCard(context, dashboardState),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -107,31 +97,16 @@ class InfoSectionWidget extends ConsumerWidget {
   Widget _buildHeader(
     BuildContext context,
     WidgetRef ref,
-    bool isDark,
+    ThemeData theme,
     bool isExpanded,
-    bool isHorizontal,
   ) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () =>
             ref.read(dashboardStateProvider.notifier).toggleInfoSection(),
-        borderRadius: BorderRadius.vertical(
-          top: const Radius.circular(12),
-          bottom: isExpanded ? Radius.zero : const Radius.circular(12),
-        ),
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: isExpanded
-                  ? BorderSide(
-                      color: isDark ? Colors.white24 : Colors.black12,
-                      width: 1,
-                    )
-                  : BorderSide.none,
-            ),
-          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -140,42 +115,27 @@ class InfoSectionWidget extends ConsumerWidget {
                   Icon(
                     Icons.info_outline,
                     size: 18,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '详细信息',
-                    style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  if (isHorizontal)
-                    Text(
-                      '横屏模式',
-                      style: TextStyle(
-                        color: isDark ? Colors.white60 : Colors.black54,
-                        fontSize: 11,
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      isExpanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      key: ValueKey(isExpanded),
-                      color: isDark ? Colors.white70 : Colors.black54,
-                      size: 20,
-                    ),
-                  ),
-                ],
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  key: ValueKey(isExpanded),
+                  color: theme.colorScheme.onSurfaceVariant,
+                  size: 24,
+                ),
               ),
             ],
           ),
@@ -184,249 +144,264 @@ class InfoSectionWidget extends ConsumerWidget {
     );
   }
 
-  /// 构建控制器卡片
+  /// 构建控制器卡片（Material Design 3 风格）
   Widget _buildControllerCard(
-      BuildContext context, DashboardState state, bool isDark) {
+    BuildContext context,
+    DashboardState state,
+  ) {
     final controller = state.controller;
-    final color = _getLevelColor(controller.level, isDark);
+    final theme = Theme.of(context);
+    final isHorizontal = state.isHorizontal;
 
-    return _InfoCard(
+    return TitledAdaptiveCard(
       title: '控制器',
       icon: Icons.memory,
-      iconColor: color,
-      isDark: isDark,
+      iconColor: _getLevelColor(controller.level, theme),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 型号和产品编号
-          if (state.modelName != null || state.serialNumber != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 6),
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withAlpha(10)
-                    : Colors.black.withAlpha(5),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (state.modelName != null)
-                    _InfoRow(
-                      label: '型号',
-                      value: state.modelName!,
-                      isDark: isDark,
-                    ),
-                  if (state.serialNumber != null)
-                    _InfoRow(
-                      label: '编号',
-                      value: state.serialNumber!,
-                      isDark: isDark,
-                    ),
-                ],
+          if (state.modelName != null || state.serialNumber != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Card.filled(
+                margin: EdgeInsets.zero,
+                elevation: 0,
+                color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (state.modelName != null)
+                        _InfoRow(
+                          label: '型号',
+                          value: state.modelName!,
+                          theme: theme,
+                        ),
+                      if (state.serialNumber != null) ...[
+                        if (state.modelName != null) const SizedBox(height: 4),
+                        _InfoRow(
+                          label: '编号',
+                          value: state.serialNumber!,
+                          theme: theme,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
-          
+          ],
+
           // 其他控制器数据
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 6,
-              crossAxisSpacing: 6,
-              childAspectRatio: state.isHorizontal ? 1.5 : 1.4,
-              children: [
-                _InfoTile(
-                  icon: Icons.thermostat,
-                  label: '温度',
-                  value: controller.temperature.toStringAsFixed(1),
-                  unit: '°C',
-                  iconColor: AppColors.temperature,
-                  isDark: isDark,
-                  isHorizontal: state.isHorizontal,
-                ),
-                _InfoTile(
-                  icon: Icons.electrical_services,
-                  label: '电压',
-                  value: controller.voltage.toStringAsFixed(1),
-                  unit: 'V',
-                  iconColor: AppColors.power,
-                  isDark: isDark,
-                  isHorizontal: state.isHorizontal,
-                ),
-                _InfoTile(
-                  icon: Icons.bolt,
-                  label: '电流',
-                  value: controller.current.toStringAsFixed(1),
-                  unit: 'A',
-                  iconColor: AppColors.power,
-                  isDark: isDark,
-                  isHorizontal: state.isHorizontal,
-                ),
-                _InfoTile(
-                  icon: Icons.rotate_right,
-                  label: '转速',
-                  value: '${controller.rpm}',
-                  unit: 'RPM',
-                  iconColor: AppColors.speed,
-                  isDark: isDark,
-                  isHorizontal: state.isHorizontal,
-                ),
-              ],
-            ),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: isHorizontal ? 1.6 : 1.3,
+            children: [
+              _InfoTile(
+                icon: Icons.thermostat_outlined,
+                label: '温度',
+                value: controller.temperature.toStringAsFixed(1),
+                unit: '°C',
+                iconColor: AppColors.temperature,
+                theme: theme,
+                isHorizontal: isHorizontal,
+              ),
+              _InfoTile(
+                icon: Icons.electrical_services_outlined,
+                label: '电压',
+                value: controller.voltage.toStringAsFixed(1),
+                unit: 'V',
+                iconColor: AppColors.power,
+                theme: theme,
+                isHorizontal: isHorizontal,
+              ),
+              _InfoTile(
+                icon: Icons.bolt_outlined,
+                label: '电流',
+                value: controller.current.toStringAsFixed(1),
+                unit: 'A',
+                iconColor: AppColors.power,
+                theme: theme,
+                isHorizontal: isHorizontal,
+              ),
+              _InfoTile(
+                icon: Icons.rotate_right_outlined,
+                label: '转速',
+                value: '${controller.rpm}',
+                unit: 'RPM',
+                iconColor: AppColors.speed,
+                theme: theme,
+                isHorizontal: isHorizontal,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  /// 构建BMS卡片
+  /// 构建BMS卡片（Material Design 3 风格）
   Widget _buildBmsCard(
-      BuildContext context, DashboardState state, bool isDark) {
+    BuildContext context,
+    DashboardState state,
+  ) {
     final bms = state.bms;
-    final color = _getLevelColor(bms.level, isDark);
+    final theme = Theme.of(context);
+    final isHorizontal = state.isHorizontal;
 
-    return _InfoCard(
+    return TitledAdaptiveCard(
       title: '电池管理',
-      icon: Icons.battery_std,
-      iconColor: color,
-      isDark: isDark,
+      icon: Icons.battery_std_outlined,
+      iconColor: _getLevelColor(bms.level, theme),
       child: GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 6,
-        crossAxisSpacing: 6,
-        childAspectRatio: state.isHorizontal ? 1.5 : 1.4,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+        childAspectRatio: isHorizontal ? 1.6 : 1.3,
         children: [
           _InfoTile(
-            icon: Icons.battery_full,
+            icon: Icons.battery_full_outlined,
             label: '电量',
             value: bms.batteryLevel.toStringAsFixed(0),
             unit: '%',
             iconColor: AppColors.battery,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
           _InfoTile(
-            icon: Icons.route,
+            icon: Icons.route_outlined,
             label: '续航',
             value: bms.remainingRange.toStringAsFixed(0),
             unit: 'km',
             iconColor: AppColors.success,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
           _InfoTile(
-            icon: Icons.device_thermostat,
+            icon: Icons.device_thermostat_outlined,
             label: '电芯温',
             value: bms.cellTemp.toStringAsFixed(1),
             unit: '°C',
             iconColor: AppColors.temperature,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
           _InfoTile(
-            icon: Icons.power,
+            icon: Icons.power_outlined,
             label: '总电压',
             value: bms.voltage.toStringAsFixed(1),
             unit: 'V',
             iconColor: AppColors.power,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
         ],
       ),
     );
   }
 
-  /// 构建行程卡片
+  /// 构建行程卡片（Material Design 3 风格）
   Widget _buildTripCard(
-      BuildContext context, DashboardState state, bool isDark) {
+    BuildContext context,
+    DashboardState state,
+  ) {
     final trip = state.trip;
-    // 横竖屏统一使用2列布局,与控制器、电池卡片保持一致
-    final crossAxisCount = 2;
+    final theme = Theme.of(context);
+    final isHorizontal = state.isHorizontal;
 
-    return _InfoCard(
+    return TitledAdaptiveCard(
       title: '行程信息',
-      icon: Icons.route,
-      iconColor: isDark ? AppColors.cyanNeon : AppColors.primaryBlue,
-      isDark: isDark,
+      icon: Icons.route_outlined,
+      iconColor: theme.colorScheme.primary,
       child: GridView.count(
-        crossAxisCount: crossAxisCount,
+        crossAxisCount: 2,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 6,
-        crossAxisSpacing: 6,
-        // 横屏使用1.5与控制器、电池卡片统一,竖屏保持1.4
-        childAspectRatio: state.isHorizontal ? 1.5 : 1.4,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+        childAspectRatio: isHorizontal ? 1.6 : 1.3,
         children: [
           _InfoTile(
-            icon: Icons.speed,
+            icon: Icons.speed_outlined,
             label: '总里程',
             value: trip.totalDistance.toStringAsFixed(1),
             unit: 'km',
-            iconColor: AppColors.primary,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            iconColor: theme.colorScheme.primary,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
           _InfoTile(
-            icon: Icons.trip_origin,
+            icon: Icons.trip_origin_outlined,
             label: '本次行程',
             value: trip.tripDistance.toStringAsFixed(1),
             unit: 'km',
-            iconColor: isDark ? AppColors.cyanNeon : AppColors.speed,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            iconColor: theme.colorScheme.tertiary,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
           _InfoTile(
-            icon: Icons.speed,
+            icon: Icons.speed_outlined,
             label: '平均速度',
             value: trip.avgSpeed.toStringAsFixed(1),
             unit: 'km/h',
             iconColor: AppColors.speed,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
           _InfoTile(
-            icon: Icons.flash_on,
+            icon: Icons.flash_on_outlined,
             label: '最大速度',
             value: trip.maxSpeed.toStringAsFixed(1),
             unit: 'km/h',
-            iconColor: AppColors.accent,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            iconColor: AppColors.power,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
           _InfoTile(
-            icon: Icons.battery_charging_full,
+            icon: Icons.battery_charging_full_outlined,
             label: '能耗',
             value: trip.energyUsed.toStringAsFixed(1),
             unit: 'kWh/100km',
-            iconColor: AppColors.secondary,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+            iconColor: AppColors.battery,
+            theme: theme,
+            isHorizontal: isHorizontal,
           ),
         ],
       ),
     );
   }
 
-  /// 构建拓展模块卡片
+  /// 构建拓展模块卡片（Material Design 3 风格）
   Widget _buildExtensionsCard(
-      BuildContext context, DashboardState state, bool isDark) {
-    return _InfoCard(
+    BuildContext context,
+    DashboardState state,
+  ) {
+    final theme = Theme.of(context);
+
+    if (state.extensions.isEmpty) return const SizedBox.shrink();
+
+    return TitledAdaptiveCard(
       title: '拓展模块',
-      icon: Icons.widgets,
-      iconColor: isDark ? AppColors.purpleNeon : AppColors.purple,
-      isDark: isDark,
+      icon: Icons.widgets_outlined,
+      iconColor: theme.colorScheme.tertiary,
       child: Column(
         children: state.extensions.map((ext) {
-          return _ExtensionRow(
-            name: ext.name,
-            connected: ext.connected,
-            info: ext.additionalInfo,
-            isDark: isDark,
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: _ExtensionRow(
+              name: ext.name,
+              connected: ext.connected,
+              info: ext.additionalInfo,
+              theme: theme,
+            ),
           );
         }).toList(),
       ),
@@ -434,83 +409,65 @@ class InfoSectionWidget extends ConsumerWidget {
   }
 
   /// 获取级别对应颜色
-  Color _getLevelColor(FaultLevel level, bool isDark) {
+  Color _getLevelColor(FaultLevel level, ThemeData theme) {
     switch (level) {
       case FaultLevel.normal:
-        return isDark ? AppColors.successNeon : AppColors.success;
+        return theme.colorScheme.primary;
       case FaultLevel.warning:
-        return isDark ? AppColors.warningNeon : AppColors.warning;
+        return AppColors.warning;
       case FaultLevel.error:
-        return isDark ? AppColors.errorNeon : AppColors.error;
+        return AppColors.error;
     }
   }
 }
 
-/// 信息卡片组件
-class _InfoCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Color iconColor;
-  final bool isDark;
-  final Widget child;
+/// 信息行组件（Material Design 3 风格）
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final ThemeData theme;
 
-  const _InfoCard({
-    required this.title,
-    required this.icon,
-    required this.iconColor,
-    required this.isDark,
-    required this.child,
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    required this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.black.withValues(alpha: 0.2)
-            : Colors.white.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isDark ? Colors.white10 : Colors.black12,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 标题栏
-          Row(
-            children: [
-              Icon(icon, size: 14, color: iconColor),
-              const SizedBox(width: 5),
-              Text(
-                title,
-                style: TextStyle(
-                  color: isDark ? Colors.white : AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: 6),
-          // 内容
-          child,
-        ],
-      ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// 信息磁贴组件
+/// 信息磁贴组件（Material Design 3 风格）
 class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
   final String? unit;
   final Color iconColor;
-  final bool isDark;
+  final ThemeData theme;
   final bool isHorizontal;
 
   const _InfoTile({
@@ -519,179 +476,112 @@ class _InfoTile extends StatelessWidget {
     required this.value,
     this.unit,
     required this.iconColor,
-    required this.isDark,
+    required this.theme,
     required this.isHorizontal,
   });
 
   @override
   Widget build(BuildContext context) {
     final iconSize = isHorizontal ? 18.0 : 20.0;
-    final labelFontSize = isHorizontal ? 8.0 : 9.0;
-    final valueFontSize = isHorizontal ? 14.0 : 16.0;
-    final unitFontSize = isHorizontal ? 9.0 : 10.0;
-    final padding = isHorizontal ? 6.0 : 8.0;
+    final labelFontSize = isHorizontal ? 10.0 : 11.0;
+    final valueFontSize = isHorizontal ? 15.0 : 17.0;
+    final unitFontSize = isHorizontal ? 10.0 : 11.0;
 
-    return Container(
-      padding: EdgeInsets.all(padding),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.black.withValues(alpha: 0.02),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: iconSize, color: iconColor),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: labelFontSize,
-              color: isDark ? Colors.white60 : Colors.black54,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: valueFontSize,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black,
-            ),
-          ),
-          if (unit != null) ...[
+    return Card.filled(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+      child: Padding(
+        padding: EdgeInsets.all(isHorizontal ? 10.0 : 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: iconSize, color: iconColor),
             const SizedBox(height: 2),
             Text(
-              unit!,
-              style: TextStyle(
-                fontSize: unitFontSize,
-                color: isDark ? Colors.white60 : Colors.black54,
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontSize: labelFontSize,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// 信息行组件（用于显示型号和产品编号）
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isDark;
-
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              color: isDark ? Colors.white60 : Colors.black54,
-            ),
-          ),
-          Expanded(
-            child: Text(
+            const SizedBox(height: 4),
+            Text(
               value,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontSize: 10,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontSize: valueFontSize,
                 fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ),
-        ],
+            if (unit != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                unit!,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontSize: unitFontSize,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// 拓展模块行组件
+/// 拓展模块行组件（Material Design 3 风格）
 class _ExtensionRow extends StatelessWidget {
   final String name;
   final bool connected;
   final String? info;
-  final bool isDark;
+  final ThemeData theme;
 
   const _ExtensionRow({
     required this.name,
     required this.connected,
     this.info,
-    required this.isDark,
+    required this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
     final statusColor = connected
-        ? (isDark ? AppColors.successNeon : AppColors.success)
-        : (isDark ? AppColors.errorNeon : AppColors.error);
+        ? AppColors.connected
+        : theme.colorScheme.error;
     final statusText = connected ? '已连接' : '未连接';
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.black.withValues(alpha: 0.02),
-        borderRadius: BorderRadius.circular(4),
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(
+        connected ? Icons.check_circle : Icons.cancel,
+        size: 16,
+        color: statusColor,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      title: Text(
+        name,
+        style: theme.textTheme.bodyMedium,
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Icon(
-                connected ? Icons.check_circle : Icons.cancel,
-                size: 10,
-                color: statusColor,
+          if (info != null) ...[
+            Text(
+              info!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 4),
-              Text(
-                name,
-                style: TextStyle(
-                  color: isDark ? Colors.white : AppColors.textPrimary,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              if (info != null) ...[
-                Text(
-                  info!,
-                  style: TextStyle(
-                    color: isDark ? Colors.white60 : Colors.black54,
-                    fontSize: 9,
-                  ),
-                ),
-                const SizedBox(width: 4),
-              ],
-              Text(
-                statusText,
-                style: TextStyle(
-                  color: statusColor,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+            ),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            statusText,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: statusColor,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
