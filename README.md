@@ -160,9 +160,7 @@ lib/
 ## 📚 文档
 
 - [设计规范](DESIGN_SPEC.md) - 完整设计规范
-- [快速开始](QUICK_START.md) - 5分钟上手指南
 - [项目结构](PROJECT_STRUCTURE.md) - 目录结构说明
-- [开发状态](DEVELOPMENT_STATUS.md) - 开发进度报告
 - [项目总结](PROJECT_SUMMARY.md) - 完整项目总结
 
 ## 🎯 使用示例

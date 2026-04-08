@@ -250,7 +250,7 @@ class DashboardGroup extends StatelessWidget {
             ],
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),

@@ -12,7 +12,7 @@ class ThemeService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_themeKey, mode.toString());
     } catch (e) {
-      print('保存主题设置失败: $e');
+      // 日志记录: 保存主题设置失败
     }
   }
 
@@ -32,7 +32,7 @@ class ThemeService {
         orElse: () => ThemeMode.system,
       );
     } catch (e) {
-      print('加载主题设置失败: $e');
+      // 日志记录: 加载主题设置失败
       return ThemeMode.system;
     }
   }
@@ -43,7 +43,7 @@ class ThemeService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_themeKey);
     } catch (e) {
-      print('清除主题设置失败: $e');
+      // 日志记录: 清除主题设置失败
     }
   }
 

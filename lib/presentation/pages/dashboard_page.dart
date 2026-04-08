@@ -3,10 +3,67 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import '../../application/dashboard/dashboard_state.dart';
 import '../../application/dashboard/dashboard_provider.dart';
+import '../../application/bluetooth/bluetooth_provider.dart';
+import '../../core/services/bluetooth_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/logging_service.dart';
 import '../widgets/molecules/speed_display_widget.dart';
 import '../widgets/organisms/info_section_widget.dart';
 import '../widgets/atoms/theme_switcher.dart';
+import 'bluetooth_connect_page.dart';
+import 'log_viewer_page.dart';
+
+/// 菜单按钮组件
+class _MenuButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _MenuButton({
+    required this.icon,
+    required this.label,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white10 : Colors.black12,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? Colors.white24 : Colors.black26,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: isDark ? Colors.white70 : Colors.black87,
+              size: 24,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: isDark ? Colors.white70 : Colors.black87,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// 仪表盘主页面 - 科技感重新设计
 /// 支持上下分屏、横竖屏适配、深浅色主题
@@ -20,7 +77,6 @@ class DashboardPage extends ConsumerStatefulWidget {
 class _DashboardPageState extends ConsumerState<DashboardPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  bool _isSimulationRunning = false;
 
   @override
   void initState() {
@@ -61,30 +117,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
     final orientation = MediaQuery.of(context).orientation;
     final isHorizontal = orientation == Orientation.landscape;
     ref.read(dashboardStateProvider.notifier).updateOrientation(isHorizontal);
-  }
-
-  /// 切换模拟数据
-  void _toggleSimulation() {
-    setState(() {
-      _isSimulationRunning = !_isSimulationRunning;
-    });
-
-    if (_isSimulationRunning) {
-      ref.read(dashboardStateProvider.notifier).startSimulation();
-    } else {
-      ref.read(dashboardStateProvider.notifier).stopSimulation();
-    }
-  }
-
-  /// 重置数据
-  void _resetData() {
-    ref.read(dashboardStateProvider.notifier).reset();
-    if (_isSimulationRunning) {
-      ref.read(dashboardStateProvider.notifier).stopSimulation();
-      setState(() {
-        _isSimulationRunning = false;
-      });
-    }
   }
 
   @override
@@ -143,24 +175,30 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
         // 顶部栏
         _buildTopBar(context, isDark, false),
 
-        // 上部仪表盘区域 (60%)
-        const Expanded(
-          flex: 6,
+        // 上部仪表盘区域 (45%)
+        Expanded(
+          flex: 45,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // 速度显示（已集成故障指示器）
-                SpeedDisplayWidget(),
-              ],
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Center(
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 速度显示（已集成故障指示器）
+                    SpeedDisplayWidget(),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
 
-        // 下部信息区域 (40%)
+        // 下部信息区域 (55%)
         const Expanded(
-          flex: 4,
+          flex: 55,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: InfoSectionWidget(),
@@ -180,32 +218,25 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
   ) {
     return Row(
       children: [
-        // 左侧仪表盘区域 (50%)
+        // 左侧仪表盘区域 (40%) - 占满高度
         Expanded(
-          flex: 5,
-          child: Column(
-            children: [
-              // 顶部栏（横屏时放在左侧顶部）
-              _buildTopBar(context, isDark, false),
-              const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 速度显示（已集成故障指示器）
-                      SpeedDisplayWidget(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          flex: 4,
+          child: Container(
+            padding: const EdgeInsets.only(left: 16, top: 8, bottom: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                // 速度显示（已集成故障指示器）
+                SpeedDisplayWidget(),
+              ],
+            ),
           ),
         ),
 
-        // 右侧信息区域 (50%)
+        // 右侧信息区域 (60%)
         const Expanded(
-          flex: 5,
+          flex: 6,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: InfoSectionWidget(),
@@ -269,35 +300,127 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
           // 操作按钮组
           Row(
             children: [
-              // 模拟按钮
-              IconButton(
-                icon: Icon(
-                  _isSimulationRunning ? Icons.pause : Icons.play_arrow,
-                  size: 20,
-                  color: _isSimulationRunning
-                      ? (isDark ? AppColors.warningNeon : AppColors.warning)
-                      : (isDark ? Colors.white70 : Colors.black54),
-                ),
-                onPressed: _toggleSimulation,
-                tooltip: _isSimulationRunning ? '停止模拟' : '启动模拟',
-              ),
-
-              // 重置按钮
-              IconButton(
-                icon: Icon(
-                  Icons.refresh,
-                  size: 20,
-                  color: isDark ? Colors.white70 : Colors.black54,
-                ),
-                onPressed: _resetData,
-                tooltip: '重置数据',
-              ),
-
+              // 蓝牙状态指示
+              _BluetoothStatusIndicator(),
+              const SizedBox(width: 8),
+              // 蓝牙连接按钮
+              _BluetoothConnectButton(),
+              const SizedBox(width: 8),
               // 主题切换
               const ThemeSwitcher(),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  /// 悬浮菜单按钮（横屏时显示）
+  Widget _buildFloatingMenuButton(BuildContext context, bool isDark) {
+    return FloatingActionButton(
+      onPressed: () => _showMenuDialog(context, isDark),
+      backgroundColor: isDark ? Colors.black54 : Colors.white,
+      foregroundColor: isDark ? Colors.white : Colors.black87,
+      elevation: 4,
+      child: const Icon(Icons.menu),
+    );
+  }
+
+  /// 显示菜单对话框
+  void _showMenuDialog(BuildContext context, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.black87 : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 标题
+              Row(
+                children: [
+                  Icon(
+                    Icons.speed,
+                    color: isDark ? AppColors.cyanNeon : AppColors.primaryBlue,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'AHP Dashboard',
+                    style: TextStyle(
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              // 功能按钮
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _MenuButton(
+                    icon: Icons.arrow_back,
+                    label: '返回旧版',
+                    isDark: isDark,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacementNamed(context, '/dashboard');
+                    },
+                  ),
+                  _MenuButton(
+                    icon: Icons.brightness_6,
+                    label: '切换主题',
+                    isDark: isDark,
+                    onTap: () {
+                      Navigator.pop(context);
+                      // 主题切换在 ThemeSwitcher 中处理
+                    },
+                  ),
+                  _MenuButton(
+                    icon: Icons.refresh,
+                    label: '重置数据',
+                    isDark: isDark,
+                    onTap: () {
+                      Navigator.pop(context);
+                      ref.read(dashboardStateProvider.notifier).reset();
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // 关闭按钮
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    '关闭',
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -308,55 +431,39 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
       builder: (context, ref, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         final dashboardState = ref.watch(dashboardStateProvider);
+        final isHorizontal = dashboardState.isHorizontal;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 模拟状态指示器
-            if (_isSimulationRunning)
+            // 日志按钮（新增）
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: FloatingActionButton(
+                heroTag: 'log',
+                mini: true,
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                onPressed: () async {
+                  await logger.initialize();
+                  if (mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LogViewerPage(),
+                      ),
+                    );
+                  }
+                },
+                child: const Icon(Icons.bug_report, size: 20),
+              ),
+            ),
+
+            // 横屏时显示菜单按钮
+            if (isHorizontal)
               Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.black54 : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: AppColors.successNeon,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.successNeon.withValues(alpha: 0.5),
-                            blurRadius: 4,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '模拟中',
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+                child: _buildFloatingMenuButton(context, isDark),
               ),
 
             // GPS状态指示器
@@ -427,3 +534,131 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
     }
   }
 }
+
+/// 蓝牙状态指示器
+class _BluetoothStatusIndicator extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bluetoothState = ref.watch(bluetoothStateProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    Color statusColor;
+    IconData statusIcon;
+    String statusText;
+
+    switch (bluetoothState.connectionState) {
+      case BleConnectionState.connected:
+        statusColor = Colors.green;
+        statusIcon = Icons.bluetooth_connected;
+        statusText = '已连接';
+        break;
+      case BleConnectionState.scanning:
+      case BleConnectionState.connecting:
+        statusColor = Colors.orange;
+        statusIcon = Icons.bluetooth_searching;
+        statusText = '连接中';
+        break;
+      default:
+        statusColor = isDark ? Colors.white54 : Colors.black54;
+        statusIcon = Icons.bluetooth_disabled;
+        statusText = '未连接';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.black38 : Colors.white.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: statusColor.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            statusIcon,
+            size: 14,
+            color: statusColor,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            statusText,
+            style: TextStyle(
+              color: isDark ? Colors.white70 : Colors.black87,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 蓝牙连接按钮
+class _BluetoothConnectButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bluetoothState = ref.watch(bluetoothStateProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isConnected = bluetoothState.isConnected;
+
+    return GestureDetector(
+      onTap: () async {
+        if (isConnected) {
+          // 断开连接
+          await ref.read(bluetoothStateProvider.notifier).disconnect();
+        } else {
+          // 打开连接页面
+          final result = await Navigator.push<bool>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const BluetoothConnectPage(),
+            ),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isConnected
+              ? Colors.green.withValues(alpha: 0.2)
+              : (isDark ? Colors.white10 : Colors.black12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isConnected
+                ? Colors.green.withValues(alpha: 0.5)
+                : (isDark ? Colors.white24 : Colors.black26),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isConnected ? Icons.link : Icons.link_off,
+              size: 16,
+              color: isConnected
+                  ? Colors.green
+                  : (isDark ? Colors.white70 : Colors.black87),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              isConnected ? '断开' : '连接',
+              style: TextStyle(
+                color: isConnected
+                    ? Colors.green
+                    : (isDark ? Colors.white70 : Colors.black87),
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

@@ -1,7 +1,8 @@
 import 'package:permission_handler/permission_handler.dart' as plugin;
 import 'package:location/location.dart' as loc;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter/foundation.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
 import '../constants/permission_constants.dart';
 
 /// 权限服务类
@@ -45,7 +46,7 @@ class PermissionService {
           return await _checkBluetoothConnect();
       }
     } catch (e) {
-      print('检查权限失败: $e');
+      // 日志记录: 检查权限失败
       return PermissionStatus.unknown;
     }
   }
@@ -100,7 +101,7 @@ class PermissionService {
           return await _requestBluetoothConnect();
       }
     } catch (e) {
-      print('请求权限失败: $e');
+      // 日志记录: 请求权限失败
       return PermissionStatus.unknown;
     }
   }
@@ -197,7 +198,7 @@ class PermissionService {
     try {
       return await plugin.openAppSettings();
     } catch (e) {
-      print('打开设置失败: $e');
+      // 日志记录: 打开设置失败
       return false;
     }
   }
@@ -209,7 +210,7 @@ class PermissionService {
       final serviceEnabled = await location.serviceEnabled();
       return serviceEnabled;
     } catch (e) {
-      print('检查定位服务失败: $e');
+      // 日志记录: 检查定位服务失败
       return false;
     }
   }
@@ -224,7 +225,7 @@ class PermissionService {
       }
       return true;
     } catch (e) {
-      print('请求定位服务失败: $e');
+      // 日志记录: 请求定位服务失败
       return false;
     }
   }
@@ -236,7 +237,7 @@ class PermissionService {
       final state = await FlutterBluePlus.adapterState.first;
       return state == BluetoothAdapterState.on;
     } catch (e) {
-      print('检查蓝牙状态失败: $e');
+      // 日志记录: 检查蓝牙状态失败
       return false;
     }
   }
@@ -248,7 +249,7 @@ class PermissionService {
       // 我们可以提示用户去开启
       return await isBluetoothEnabled();
     } catch (e) {
-      print('请求蓝牙开启失败: $e');
+      // 日志记录: 请求蓝牙开启失败
       return false;
     }
   }
@@ -256,10 +257,11 @@ class PermissionService {
   /// 检查平台是否为 Android 12+
   Future<bool> _isAndroid12OrAbove() async {
     try {
-      // 检查平台
-      // 在实际应用中，需要使用 Platform 类
-      // 这里简化处理，假设需要检查
-      return true; // 实际使用时需要真实检查
+      if (Platform.isAndroid) {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        return androidInfo.version.sdkInt >= 31;
+      }
+      return false;
     } catch (e) {
       return false;
     }
@@ -297,8 +299,6 @@ class PermissionService {
       case PermissionStatus.limited:
         return '有限';
       case PermissionStatus.unknown:
-        return '未知';
-      case null:
         return '未知';
     }
   }

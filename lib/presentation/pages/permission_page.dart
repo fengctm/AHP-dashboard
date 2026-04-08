@@ -258,7 +258,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
           const SizedBox(height: 16),
           Text(
             PermissionConstants.permissionRequiredTitle,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 28,
             ),
@@ -266,7 +266,7 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
           const SizedBox(height: 8),
           Text(
             PermissionConstants.permissionRequiredDescription,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.grey,
             ),
           ),
@@ -309,14 +309,14 @@ class _PermissionPageState extends ConsumerState<PermissionPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           '可选权限（推荐）',
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
-        const PermissionRequestList(
+        PermissionRequestList(
           permissions: PermissionGroup.optional,
         ),
       ],

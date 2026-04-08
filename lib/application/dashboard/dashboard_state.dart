@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../domain/models/ble_packet.dart';
 
 /// 速度单位枚举
 enum SpeedUnit {
@@ -29,12 +30,28 @@ class ControllerStatus {
   final int rpm;            // 转速 RPM
   final FaultLevel level;   // 故障级别
 
+  // 远驱控制器特有字段
+  final int? gear;          // 挡位 0-3
+  final double? modulation; // 调制比 0.0-2.0
+  final int? direction;     // 方向 1=前进, -1=后退, 0=静止
+  final List<String>? faults; // 故障列表
+  final double? phaseA;     // A相电流 A
+  final double? phaseC;     // C相电流 A
+  final double? power;      // 功率 W
+
   ControllerStatus({
     required this.temperature,
     required this.voltage,
     required this.current,
     required this.rpm,
     required this.level,
+    this.gear,
+    this.modulation,
+    this.direction,
+    this.faults,
+    this.phaseA,
+    this.phaseC,
+    this.power,
   });
 
   ControllerStatus copyWith({
@@ -43,6 +60,13 @@ class ControllerStatus {
     double? current,
     int? rpm,
     FaultLevel? level,
+    int? gear,
+    double? modulation,
+    int? direction,
+    List<String>? faults,
+    double? phaseA,
+    double? phaseC,
+    double? power,
   }) {
     return ControllerStatus(
       temperature: temperature ?? this.temperature,
@@ -50,6 +74,48 @@ class ControllerStatus {
       current: current ?? this.current,
       rpm: rpm ?? this.rpm,
       level: level ?? this.level,
+      gear: gear ?? this.gear,
+      modulation: modulation ?? this.modulation,
+      direction: direction ?? this.direction,
+      faults: faults ?? this.faults,
+      phaseA: phaseA ?? this.phaseA,
+      phaseC: phaseC ?? this.phaseC,
+      power: power ?? this.power,
+    );
+  }
+
+  /// 从远驱控制器数据更新
+  ControllerStatus copyWithYuanquData({
+    int? rpm,
+    int? gear,
+    double? voltage,
+    double? current,
+    double? power,
+    double? modulation,
+    int? direction,
+    List<String>? faults,
+    double? phaseA,
+    double? phaseC,
+    int? motorTemp,
+    int? mosTemp,
+  }) {
+    return ControllerStatus(
+      temperature: (motorTemp?.toDouble() ?? mosTemp?.toDouble()) ?? temperature,
+      voltage: voltage ?? this.voltage,
+      current: current ?? this.current,
+      rpm: rpm ?? this.rpm,
+      level: (faults != null && faults.isNotEmpty && !(faults.length == 1 && faults[0] == '系统正常'))
+          ? (faults.any((f) => f.contains('过温') || f.contains('故障') || f.contains('保护'))
+              ? FaultLevel.error
+              : FaultLevel.warning)
+          : level,
+      gear: gear ?? this.gear,
+      modulation: modulation ?? this.modulation,
+      direction: direction ?? this.direction,
+      faults: faults ?? this.faults,
+      phaseA: phaseA ?? this.phaseA,
+      phaseC: phaseC ?? this.phaseC,
+      power: power ?? this.power,
     );
   }
 }
@@ -83,6 +149,33 @@ class BmsStatus {
       cellTemp: cellTemp ?? this.cellTemp,
       voltage: voltage ?? this.voltage,
       level: level ?? this.level,
+    );
+  }
+
+  /// 从远驱控制器数据更新
+  BmsStatus copyWithYuanquData({
+    int? soc,
+    double? voltage,
+    List<CellData>? cells,
+  }) {
+    // 从电芯数据计算平均温度和状态
+    double? avgCellTemp;
+    FaultLevel? cellLevel;
+
+    if (cells != null && cells.isNotEmpty) {
+      // 这里可以根据电芯数据计算状态
+      // 简单实现：如果SOC低则警告
+      if (soc != null && soc < 20) {
+        cellLevel = FaultLevel.warning;
+      }
+    }
+
+    return BmsStatus(
+      batteryLevel: soc?.toDouble() ?? batteryLevel,
+      remainingRange: remainingRange, // 可以根据SOC计算
+      cellTemp: cellTemp,
+      voltage: voltage ?? this.voltage,
+      level: cellLevel ?? level,
     );
   }
 }
@@ -177,39 +270,35 @@ class DashboardState {
     required this.isHorizontal,
   });
 
-  /// 默认状态（用于初始化）
+  /// 默认状态（用于初始化）- 无假数据
   factory DashboardState.defaultState() {
     return DashboardState(
       currentSpeed: 0.0,
       speedUnit: SpeedUnit.kmh,
-      gpsStatus: GpsSignalStatus.excellent,
+      gpsStatus: GpsSignalStatus.none, // 初始无GPS信号
       isBraking: false,
       controller: ControllerStatus(
-        temperature: 35.0,
-        voltage: 72.0,
-        current: 5.0,
+        temperature: 0.0,
+        voltage: 0.0,
+        current: 0.0,
         rpm: 0,
         level: FaultLevel.normal,
       ),
       bms: BmsStatus(
-        batteryLevel: 85.0,
-        remainingRange: 120.0,
-        cellTemp: 28.0,
-        voltage: 72.0,
+        batteryLevel: 0.0,
+        remainingRange: 0.0,
+        cellTemp: 0.0,
+        voltage: 0.0,
         level: FaultLevel.normal,
       ),
       trip: TripInfo(
-        totalDistance: 1250.0,
-        tripDistance: 25.5,
-        avgSpeed: 28.0,
-        maxSpeed: 45.0,
-        energyUsed: 8.5,
+        totalDistance: 0.0,
+        tripDistance: 0.0,
+        avgSpeed: 0.0,
+        maxSpeed: 0.0,
+        energyUsed: 0.0,
       ),
-      extensions: [
-        ExtensionModule(name: "地图导航", connected: true, additionalInfo: "在线"),
-        ExtensionModule(name: "媒体播放", connected: true, additionalInfo: "播放中"),
-        ExtensionModule(name: "胎压监测", connected: false),
-      ],
+      extensions: const [], // 空列表，等待蓝牙连接后动态添加
       isInfoSectionExpanded: true,
       isHorizontal: false,
     );

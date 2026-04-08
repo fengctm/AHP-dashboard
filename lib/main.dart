@@ -3,12 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/providers/permission_provider.dart';
 import 'core/theme/theme_config.dart';
+import 'core/constants/permission_constants.dart';
+import 'core/utils/logging_service.dart';
+import 'application/bluetooth/bluetooth_dashboard_sync.dart';
 import 'presentation/pages/dashboard_page.dart';
 import 'presentation/pages/permission_page.dart';
 
-void main() {
+void main() async {
+  // 初始化日志服务
+  await logger.initialize();
+
   runApp(
-    const ProviderScope(
+    ProviderScope(
+      observers: [
+        BluetoothSyncObserver(), // 添加蓝牙数据同步观察者
+      ],
       child: MyApp(),
     ),
   );
@@ -76,43 +85,27 @@ class MyApp extends ConsumerWidget {
 
 /// 权限包装器组件
 /// 负责检查权限并决定显示哪个页面
-class PermissionWrapper extends ConsumerStatefulWidget {
+class PermissionWrapper extends ConsumerWidget {
   const PermissionWrapper({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<PermissionWrapper> createState() => _PermissionWrapperState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final permissionState = ref.watch(permissionProvider);
 
-class _PermissionWrapperState extends ConsumerState<PermissionWrapper> {
-  bool _isChecking = true;
-  bool _hasAllPermissions = false;
+    return permissionState.when(
+      data: (permissions) {
+        // 检查是否所有必要权限都已授予
+        final hasAllRequired = PermissionGroup.required.every(
+          (type) => permissions[type] == PermissionStatus.granted
+        );
 
-  @override
-  void initState() {
-    super.initState();
-    _checkPermissions();
-  }
-
-  Future<void> _checkPermissions() async {
-    // 等待权限提供者初始化
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    final permissionUtils = ref.read(permissionUtilsProvider);
-    final hasPermissions = await permissionUtils.hasAllRequiredPermissions;
-
-    if (mounted) {
-      setState(() {
-        _isChecking = false;
-        _hasAllPermissions = hasPermissions;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isChecking) {
-      // 检查权限时的加载界面
-      return Scaffold(
+        if (hasAllRequired) {
+          return const DashboardPage();
+        } else {
+          return const PermissionPage();
+        }
+      },
+      loading: () => Scaffold(
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -123,23 +116,12 @@ class _PermissionWrapperState extends ConsumerState<PermissionWrapper> {
                 '正在检查权限...',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              const SizedBox(height: 8),
-              Text(
-                '请稍候',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
             ],
           ),
         ),
-      );
-    }
-
-    // 根据权限状态显示相应页面
-    if (_hasAllPermissions) {
-      return const DashboardPage(); // 默认使用新版本仪表盘
-    } else {
-      return const PermissionPage();
-    }
+      ),
+      error: (error, stackTrace) => const PermissionPage(),
+    );
   }
 }
 
