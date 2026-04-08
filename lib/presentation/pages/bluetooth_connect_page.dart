@@ -573,7 +573,7 @@ class _BluetoothConnectPageState extends ConsumerState<BluetoothConnectPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: signalColor.withValues(alpha: 0.2),
+                  color: signalColor.withAlpha(80),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(

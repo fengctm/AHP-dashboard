@@ -204,7 +204,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             if (isHorizontal)
               FloatingActionButton.small(
                 heroTag: 'menu',
-                onPressed: () => _showMenuDialog(context),
+                onPressed: () => _showMenuDialog(context, ref),
                 child: const Icon(Icons.more_vert),
               ),
           ],
@@ -214,7 +214,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   /// 显示菜单对话框（Material Design 3 风格）
-  void _showMenuDialog(BuildContext context) {
+  void _showMenuDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
