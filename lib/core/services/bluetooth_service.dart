@@ -45,8 +45,7 @@ class YuanquBluetoothService {
   bool _hasReceivedValidData = false; // 是否收到过有效数据
 
   // 远驱控制器的特征UUID
-  // 注意：这些UUID需要根据实际设备配置修改
-  // 常见的远驱控制器使用以下UUID或类似的
+  // 远驱控制器常用的UUID配置
   static const String serviceUuid = '0000fff0-0000-1000-8000-00805f9b34fb';
   static const String notifyCharacteristicUuid =
       '0000fff4-0000-1000-8000-00805f9b34fb'; // 通知特征
@@ -63,6 +62,10 @@ class YuanquBluetoothService {
     'controller',
     'BLE',
     'ble',
+    'motor',
+    '电机',
+    'Electric',
+    'electric',
   ];
 
   // ========== 公开流 ==========
@@ -289,12 +292,13 @@ class YuanquBluetoothService {
         }
 
         // 按服务UUID匹配
-        if (service.uuid.toString().toLowerCase().replaceAll('-', '') ==
-            serviceUuid.toLowerCase().replaceAll('-', '')) {
+        final serviceUuidStr = service.uuid.toString().toLowerCase().replaceAll('-', '');
+        if (serviceUuidStr == serviceUuid.toLowerCase().replaceAll('-', '')) {
           for (var characteristic in service.characteristics) {
-            if (characteristic.uuid.toString().toLowerCase().replaceAll('-', '') ==
-                notifyCharacteristicUuid.toLowerCase().replaceAll('-', '')) {
+            final charUuidStr = characteristic.uuid.toString().toLowerCase().replaceAll('-', '');
+            if (charUuidStr == notifyCharacteristicUuid.toLowerCase().replaceAll('-', '')) {
               targetCharacteristic = characteristic;
+              logger.info('找到远驱控制器特征: ${characteristic.uuid}');
               break;
             }
           }

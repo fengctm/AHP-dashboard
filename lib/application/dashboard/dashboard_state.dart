@@ -252,6 +252,10 @@ class DashboardState {
   final BmsStatus bms;
   final TripInfo trip;
   final List<ExtensionModule> extensions;
+  
+  // 设备信息
+  final String? modelName;        // 控制器型号
+  final String? serialNumber;     // 产品编号
 
   // UI状态
   final bool isInfoSectionExpanded; // 信息区域是否展开
@@ -266,6 +270,8 @@ class DashboardState {
     required this.bms,
     required this.trip,
     required this.extensions,
+    this.modelName,
+    this.serialNumber,
     required this.isInfoSectionExpanded,
     required this.isHorizontal,
   });
@@ -299,6 +305,8 @@ class DashboardState {
         energyUsed: 0.0,
       ),
       extensions: const [], // 空列表，等待蓝牙连接后动态添加
+      modelName: null,
+      serialNumber: null,
       isInfoSectionExpanded: true,
       isHorizontal: false,
     );
@@ -313,6 +321,8 @@ class DashboardState {
     BmsStatus? bms,
     TripInfo? trip,
     List<ExtensionModule>? extensions,
+    String? modelName,
+    String? serialNumber,
     bool? isInfoSectionExpanded,
     bool? isHorizontal,
   }) {
@@ -325,6 +335,8 @@ class DashboardState {
       bms: bms ?? this.bms,
       trip: trip ?? this.trip,
       extensions: extensions ?? this.extensions,
+      modelName: modelName ?? this.modelName,
+      serialNumber: serialNumber ?? this.serialNumber,
       isInfoSectionExpanded: isInfoSectionExpanded ?? this.isInfoSectionExpanded,
       isHorizontal: isHorizontal ?? this.isHorizontal,
     );
@@ -379,6 +391,8 @@ class DashboardState {
         other.bms == bms &&
         other.trip == trip &&
         listEquals(other.extensions, extensions) &&
+        other.modelName == modelName &&
+        other.serialNumber == serialNumber &&
         other.isInfoSectionExpanded == isInfoSectionExpanded &&
         other.isHorizontal == isHorizontal;
   }
@@ -394,6 +408,8 @@ class DashboardState {
       bms,
       trip,
       Object.hashAll(extensions),
+      modelName,
+      serialNumber,
       isInfoSectionExpanded,
       isHorizontal,
     );

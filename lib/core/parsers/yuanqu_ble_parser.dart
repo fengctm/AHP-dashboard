@@ -23,7 +23,7 @@ class YuanquBleParser {
 
   // 有解析逻辑的addr集合（FlashRead）
   static const Set<int> _knownAddrs = {
-    226, 232, 238, 214, 250, 244, 130, 208, 18, 105, 124, 154
+    226, 232, 238, 214, 250, 244, 130, 208, 18, 105, 124, 154, 30, 93, 99
   };
 
   // 有解析逻辑的CMD集合（Legacy）
@@ -93,7 +93,7 @@ class YuanquBleParser {
     };
 
     switch (addr) {
-      case 226: // 转速 + 挡位 + 调制比 + 故障
+      case 226: // 转速 + 挡位 + 调制比 + 故障 + 传感器类型
         result['gear'] = data[2] & 0x03;
         result['xs_control'] = (data[2] >> 2) & 0x03;
         result['reversing'] = (data[2] >> 4) & 1;
@@ -101,6 +101,7 @@ class YuanquBleParser {
         result['comp_phone'] = (data[2] & 0x80) != 0;
         result['pass_ok'] = (data[3] & 0x18) >> 3;
         result['function_en'] = (data[3] & 0x80) != 0;
+        result['bmq_hall'] = (data[3] >> 5) & 0x7; // 传感器类型
         result['modulation'] = data[6] / 128.0;
         result['rpm'] = _toSignedInt16(data[9] * 256 + data[8]);
         result['stop'] = (data[5] & 0x80) != 0;
@@ -159,9 +160,12 @@ class YuanquBleParser {
         result['soc'] = data[5];
         break;
 
-      case 130: // 油门电压 + 固件版本
+      case 130: // 油门电压 + 固件版本 + 硬件版本
         result['throttle_v'] = (data[3] * 256 + data[2]) * 0.01;
         result['fw_ver'] = data[11] >= 32 ? String.fromCharCode(data[11]) : '?';
+        result['kzq_version0'] = data[11] >= 32 ? String.fromCharCode(data[11]) : '?';
+        result['kzq_version1'] = data[12] >= 32 ? String.fromCharCode(data[12]) : '?';
+        result['soft_ver'] = data[13];
         break;
 
       case 208: // 平均能耗 + 车速参数
@@ -173,12 +177,16 @@ class YuanquBleParser {
         result['rate_ratio'] = data[11] * 256 + data[10];
         break;
 
-      case 18: // 极对数
+      case 18: // 极对数、额定电压、功率
         result['pole_pairs'] = data[6];
+        result['rated_voltage'] = (data[13] * 256 + data[12]) / 10.0;
+        result['rated_power100'] = (data[11] * 256 + data[10]) / 100.0;
         break;
 
-      case 105: // 里程低16位
+      case 105: // 里程低16位、参数索引、特殊代码
         result['distance_low'] = data[11] * 256 + data[10];
+        result['para_index'] = data[12];
+        result['special_code'] = data[13] >= 32 ? String.fromCharCode(data[13]) : '?';
         break;
 
       case 124: // 工作时长 + 里程高16位
@@ -190,6 +198,21 @@ class YuanquBleParser {
 
       case 154: // 报警记录
         result['alarm_rec'] = data[7] * 256 + data[6];
+        break;
+
+      case 30: // 产品代码
+        result['custom_code0'] = data[6] >= 32 ? String.fromCharCode(data[6]) : '?';
+        result['custom_code1'] = data[7] >= 32 ? String.fromCharCode(data[7]) : '?';
+        break;
+
+      case 93: // 产品编号
+        result['serial_number'] = String.fromCharCodes(data.sublist(2, 12)).trim();
+        break;
+
+      case 99: // 电机直径、最大电流
+        result['motordia'] = data[6];
+        result['en_max_line_curr'] = data[3] * 256 + data[2];
+        result['en_max_phase_curr'] = data[5] * 256 + data[4];
         break;
     }
 
@@ -382,7 +405,94 @@ class YuanquBleParser {
     }
     return result;
   }
-}
+
+  /// 生成控制器型号名称
+  /// 
+  /// [params] - 包含型号所需参数的Map
+  static String? generateModelName(Map<String, dynamic> params) {
+    // 检查必需参数
+    final requiredParams = [
+      'custom_code0', 'custom_code1', 'rated_voltage', 'rated_power100',
+      'pole_pairs', 'motordia', 'en_max_line_curr', 'en_max_phase_curr',
+      'para_index', 'special_code', 'kzq_version0', 'kzq_version1', 'soft_ver'
+    ];
+
+    for (final param in requiredParams) {
+      if (!params.containsKey(param)) {
+        return null;
+      }
+    }
+
+    final cc0 = params['custom_code0'] as String;
+    final cc1 = params['custom_code1'] as String;
+    final voltage = (params['rated_voltage'] as num).toInt();
+    final power100 = (params['rated_power100'] as num).toInt();
+    final pp = params['pole_pairs'] as int;
+    final dia = params['motordia'] as int;
+    final maxLine = params['en_max_line_curr'] as int;
+    final maxPhase = params['en_max_phase_curr'] as int;
+    final pidx = params['para_index'] as int;
+    final spCode = params['special_code'] as String;
+    final v0 = params['kzq_version0'] as String;
+    final v1 = params['kzq_version1'] as String;
+    final sv = params['soft_ver'] as int;
+
+    // 参数索引转字符
+    String pidx2;
+    if (pidx < 10) {
+      pidx2 = String.fromCharCode(pidx + 48);
+    } else if (pidx < 20) {
+      pidx2 = String.fromCharCode(pidx + 48 - 10);
+    } else {
+      pidx2 = String.fromCharCode(pidx);
+    }
+
+    // 特殊代码转字符
+    final pidx3 = spCode.isNotEmpty && spCode.codeUnitAt(0) < 127 ? spCode : '_';
+
+    // 电机直径代码转换
+    int num7 = dia;
+
+    // 根据条件选择型号格式
+    final diaMod = dia % 10;
+    if ([0, 2, 3, 4].contains(diaMod)) {
+      // 新格式：带传感器类型后缀
+      final num8 = maxPhase ~/ 4;
+      String suffix = '';
+      // 传感器类型（从addr=226的data[3] bit5获取）
+      final bmqHall = params['bmq_hall'] as int? ?? 0;
+      if (bmqHall >= 8) {
+        suffix = 'P';
+      } else if (bmqHall >= 4) {
+        suffix = 'Q';
+      } else if (bmqHall > 0) {
+        suffix = 'B';
+      }
+      return '$cc0$cc1$voltage$num8$suffix$num7$pidx2$pidx3$v0$v1$sv';
+    } else if (cc0 == 'Y' && cc1 == 'C') {
+      // YC 系列特殊格式
+      final vStr = voltage >= 100 ? voltage.toString().padLeft(3, '0') : '0$voltage';
+      final currStr = (maxLine ~/ 4).toString().padLeft(3, '0');
+      return '$cc0${cc1}K$vStr$currStr$pidx2$pidx3$v0$v1$sv';
+    } else if (pidx > 47) {
+      // 大功率格式
+      final num10 = maxLine ~/ 4;
+      String suffix = '';
+      final bmqHall = params['bmq_hall'] as int? ?? 0;
+      if (bmqHall >= 8) {
+        suffix = 'P';
+      } else if (bmqHall >= 4) {
+        suffix = 'Q';
+      } else if (bmqHall > 0) {
+        suffix = 'B';
+      }
+      return '$cc0$cc1${voltage}V${num10}A$suffix$num7$pidx2$pidx3$v0$v1$sv';
+    } else {
+      // 默认格式
+      return '$cc0$cc1${voltage}V${power100}H$pp$num7$pidx2$pidx3$v0$v1$sv';
+    }
+  }
+} 
 
 /// 解析后的数据类
 class ParsedControllerData {

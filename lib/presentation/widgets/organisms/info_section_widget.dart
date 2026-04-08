@@ -195,49 +195,86 @@ class InfoSectionWidget extends ConsumerWidget {
       icon: Icons.memory,
       iconColor: color,
       isDark: isDark,
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 6,
-        crossAxisSpacing: 6,
-        childAspectRatio: state.isHorizontal ? 1.5 : 1.4,
+      child: Column(
         children: [
-          _InfoTile(
-            icon: Icons.thermostat,
-            label: '温度',
-            value: controller.temperature.toStringAsFixed(1),
-            unit: '°C',
-            iconColor: AppColors.temperature,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
-          ),
-          _InfoTile(
-            icon: Icons.electrical_services,
-            label: '电压',
-            value: controller.voltage.toStringAsFixed(1),
-            unit: 'V',
-            iconColor: AppColors.power,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
-          ),
-          _InfoTile(
-            icon: Icons.bolt,
-            label: '电流',
-            value: controller.current.toStringAsFixed(1),
-            unit: 'A',
-            iconColor: AppColors.power,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
-          ),
-          _InfoTile(
-            icon: Icons.rotate_right,
-            label: '转速',
-            value: '${controller.rpm}',
-            unit: 'RPM',
-            iconColor: AppColors.speed,
-            isDark: isDark,
-            isHorizontal: state.isHorizontal,
+          // 型号和产品编号
+          if (state.modelName != null || state.serialNumber != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withAlpha(10)
+                    : Colors.black.withAlpha(5),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (state.modelName != null)
+                    _InfoRow(
+                      label: '型号',
+                      value: state.modelName!,
+                      isDark: isDark,
+                    ),
+                  if (state.serialNumber != null)
+                    _InfoRow(
+                      label: '编号',
+                      value: state.serialNumber!,
+                      isDark: isDark,
+                    ),
+                ],
+              ),
+            ),
+          
+          // 其他控制器数据
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 6,
+              childAspectRatio: state.isHorizontal ? 1.5 : 1.4,
+              children: [
+                _InfoTile(
+                  icon: Icons.thermostat,
+                  label: '温度',
+                  value: controller.temperature.toStringAsFixed(1),
+                  unit: '°C',
+                  iconColor: AppColors.temperature,
+                  isDark: isDark,
+                  isHorizontal: state.isHorizontal,
+                ),
+                _InfoTile(
+                  icon: Icons.electrical_services,
+                  label: '电压',
+                  value: controller.voltage.toStringAsFixed(1),
+                  unit: 'V',
+                  iconColor: AppColors.power,
+                  isDark: isDark,
+                  isHorizontal: state.isHorizontal,
+                ),
+                _InfoTile(
+                  icon: Icons.bolt,
+                  label: '电流',
+                  value: controller.current.toStringAsFixed(1),
+                  unit: 'A',
+                  iconColor: AppColors.power,
+                  isDark: isDark,
+                  isHorizontal: state.isHorizontal,
+                ),
+                _InfoTile(
+                  icon: Icons.rotate_right,
+                  label: '转速',
+                  value: '${controller.rpm}',
+                  unit: 'RPM',
+                  iconColor: AppColors.speed,
+                  isDark: isDark,
+                  isHorizontal: state.isHorizontal,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -534,6 +571,50 @@ class _InfoTile extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 信息行组件（用于显示型号和产品编号）
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isDark;
+
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              color: isDark ? Colors.white60 : Colors.black54,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
         ],
       ),
     );

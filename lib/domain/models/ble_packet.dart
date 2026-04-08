@@ -331,6 +331,8 @@ class YuanquDeviceData {
   final ControllerData controller;
   final BmsData? bms;
   final TripData? trip;
+  final String? modelName;        // 控制器型号
+  final String? serialNumber;     // 产品编号
   final String? rawHex;
   final BleProtocolType? protocolType;
   final DateTime timestamp;
@@ -339,6 +341,8 @@ class YuanquDeviceData {
     required this.controller,
     this.bms,
     this.trip,
+    this.modelName,
+    this.serialNumber,
     this.rawHex,
     this.protocolType,
     DateTime? timestamp,
@@ -346,10 +350,18 @@ class YuanquDeviceData {
 
   /// 从解析结果创建完整设备数据
   factory YuanquDeviceData.fromParsedData(Map<String, dynamic> data) {
+    // 尝试生成型号名称
+    String? modelName;
+    if (data.containsKey('custom_code0') && data.containsKey('custom_code1')) {
+      modelName = YuanquBleParser.generateModelName(data);
+    }
+
     return YuanquDeviceData(
       controller: ControllerData.fromParsedData(data),
       bms: BmsData.fromParsedData(data),
       trip: TripData.fromParsedData(data),
+      modelName: modelName,
+      serialNumber: data['serial_number'] as String?,
       rawHex: data['raw'] as String?,
       protocolType: _parseProtocolType(data['protocol'] as String?),
     );
@@ -361,6 +373,8 @@ class YuanquDeviceData {
       controller: controller.merge(other.controller),
       bms: bms?.merge(other.bms ?? BmsData()) ?? other.bms,
       trip: trip ?? other.trip,
+      modelName: other.modelName ?? modelName,
+      serialNumber: other.serialNumber ?? serialNumber,
       rawHex: other.rawHex ?? rawHex,
       protocolType: other.protocolType ?? protocolType,
       timestamp: other.timestamp,
@@ -373,6 +387,9 @@ class YuanquDeviceData {
       controller.voltage != null ||
       controller.current != null ||
       (bms?.soc != null);
+
+  /// 是否有设备信息
+  bool get hasDeviceInfo => modelName != null || serialNumber != null;
 
   static BleProtocolType? _parseProtocolType(String? protocol) {
     if (protocol == null) return null;
@@ -388,7 +405,7 @@ class YuanquDeviceData {
 
   @override
   String toString() {
-    return 'YuanquDeviceData(controller: $controller, '
-        'bms: $bms, trip: $trip)';
+    return 'YuanquDeviceData(controller: $controller, ' 
+        'bms: $bms, trip: $trip, model: $modelName, serial: $serialNumber)';
   }
 }
