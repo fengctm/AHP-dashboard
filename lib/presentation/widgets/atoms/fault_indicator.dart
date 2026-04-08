@@ -65,7 +65,7 @@ class FaultIndicator extends StatelessWidget {
           boxShadow: severity == FaultSeverity.error
               ? [
                   BoxShadow(
-                    color: _getColor().withValues(alpha: 0.5),
+                    color: _getColor().withAlpha(128),
                     blurRadius: 8,
                     spreadRadius: 2,
                   ),
@@ -103,9 +103,9 @@ class FaultIndicator extends StatelessWidget {
       case FaultSeverity.none:
         return Colors.transparent;
       case FaultSeverity.warning:
-        return AppColors.warningNeon;
+        return SemanticColors.warning;
       case FaultSeverity.error:
-        return AppColors.errorNeon;
+        return SemanticColors.error;
     }
   }
 
@@ -115,9 +115,9 @@ class FaultIndicator extends StatelessWidget {
       case FaultSeverity.none:
         return Colors.transparent;
       case FaultSeverity.warning:
-        return AppColors.warning.withValues(alpha: 0.2);
+        return SemanticColors.warning.withAlpha(80);
       case FaultSeverity.error:
-        return AppColors.error.withValues(alpha: 0.3);
+        return SemanticColors.error.withAlpha(120);
     }
   }
 

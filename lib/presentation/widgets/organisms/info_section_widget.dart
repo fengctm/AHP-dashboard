@@ -281,7 +281,7 @@ class InfoSectionWidget extends ConsumerWidget {
             label: '续航',
             value: bms.remainingRange.toStringAsFixed(0),
             unit: 'km',
-            iconColor: AppColors.success,
+            iconColor: SemanticColors.success,
             theme: theme,
             isHorizontal: isHorizontal,
           ),
@@ -414,7 +414,7 @@ class InfoSectionWidget extends ConsumerWidget {
       case FaultLevel.normal:
         return theme.colorScheme.primary;
       case FaultLevel.warning:
-        return AppColors.warning;
+        return SemanticColors.warning;
       case FaultLevel.error:
         return AppColors.error;
     }

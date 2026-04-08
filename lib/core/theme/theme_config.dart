@@ -324,7 +324,7 @@ final ThemeData lightTheme = ThemeData(
   ),
 
   // Material Design 3 对话框主题
-  dialogTheme: DialogTheme(
+  dialogTheme: DialogThemeData(
     backgroundColor: LightThemeColors.surface,
     elevation: 3,
     shape: RoundedRectangleBorder(
@@ -667,7 +667,7 @@ final ThemeData darkTheme = ThemeData(
   ),
 
   // Material Design 3 对话框主题
-  dialogTheme: DialogTheme(
+  dialogTheme: DialogThemeData(
     backgroundColor: DarkThemeColors.surface,
     elevation: 3,
     shape: RoundedRectangleBorder(
