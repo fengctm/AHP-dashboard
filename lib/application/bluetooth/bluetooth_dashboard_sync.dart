@@ -51,6 +51,8 @@ class BluetoothSyncObserver extends ProviderObserver {
       mosTemp: controller.mosTemp,
       soc: bms?.soc,
       totalDistance: trip?.totalDistance,
+      modelName: data.modelName,
+      serialNumber: data.serialNumber,
     );
   }
 }

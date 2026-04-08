@@ -62,6 +62,10 @@ class YuanquBluetoothService {
     'controller',
     'BLE',
     'ble',
+    'motor',
+    '电机',
+    'Electric',
+    'electric',
   ];
 
   // ========== 公开流 ==========
@@ -288,12 +292,13 @@ class YuanquBluetoothService {
         }
 
         // 按服务UUID匹配
-        if (service.uuid.toString().toLowerCase().replaceAll('-', '') ==
-            serviceUuid.toLowerCase().replaceAll('-', '')) {
+        final serviceUuidStr = service.uuid.toString().toLowerCase().replaceAll('-', '');
+        if (serviceUuidStr == serviceUuid.toLowerCase().replaceAll('-', '')) {
           for (var characteristic in service.characteristics) {
-            if (characteristic.uuid.toString().toLowerCase().replaceAll('-', '') ==
-                notifyCharacteristicUuid.toLowerCase().replaceAll('-', '')) {
+            final charUuidStr = characteristic.uuid.toString().toLowerCase().replaceAll('-', '');
+            if (charUuidStr == notifyCharacteristicUuid.toLowerCase().replaceAll('-', '')) {
               targetCharacteristic = characteristic;
+              logger.info('找到远驱控制器特征: ${characteristic.uuid}');
               break;
             }
           }

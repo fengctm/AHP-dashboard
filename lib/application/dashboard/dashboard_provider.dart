@@ -90,6 +90,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     int? mosTemp,
     int? soc,
     double? totalDistance,
+    String? modelName,
+    String? serialNumber,
   }) {
     // 更新控制器状态
     final newController = state.controller.copyWithYuanquData(
@@ -123,6 +125,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       controller: newController,
       bms: newBms,
       trip: newTrip,
+      modelName: modelName,
+      serialNumber: serialNumber,
     );
   }
 }
